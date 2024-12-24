@@ -1,4 +1,4 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
@@ -7,14 +7,38 @@ import About from "./Components/About";
 import Error from "./Components/Error";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Footer from "./Components/Footer";
-// import ResItems from "./Components/ResItems";
+
 import RemainingItems from "./Components/RemainingItems";
-// import Header from "./Components/Header";
+import CustomerOrder from "./Components/CustomerOrder";
+import Shimmer from "./Components/Shimmer";
+import Header from "./Components/Header";
+import Cart from "./Components/Cart";
+
+//lazy loading //dynamic binding // on demand loading as react is so fast when we perform lazy loading  it doesnot find the code so to overcome the drawback we wrap our element inside Suspense which is a component  and we give a fall back inside suspense
+const Grocery = lazy(() => {
+  return import("./Components/Grocery");
+});
 
 const appRouter = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+
+    errorElement: <Error />,
+  },
+  {
+    path: "/grocery",
+    element: (
+      <Suspense fallback={<Shimmer />}>
+        <Grocery />
+      </Suspense>
+    ),
+    children: [
+      {
+        path: "/grocery",
+        element: <Header />,
+      },
+    ],
 
     errorElement: <Error />,
   },
@@ -27,10 +51,12 @@ const appRouter = createBrowserRouter([
         element: <Footer />,
       },
     ],
+    errorElement: <Error />,
   },
   {
     path: "/menu/",
-    element: <Menus />,
+    element: <App />,
+    errorElement: <Error />,
   },
   {
     path: "/:collectionId",
@@ -45,6 +71,22 @@ const appRouter = createBrowserRouter([
         element: <Footer />,
       },
     ],
+  },
+  {
+    path: "/menu/orders",
+    element: <CustomerOrder />,
+  },
+  {
+    path: "/cart",
+    element: <Cart />,
+    children: [
+      {
+        path: "/cart",
+        element: <Header />,
+      },
+    ],
+
+    errorElement: <Error />,
   },
 ]);
 const root = ReactDOM.createRoot(document.getElementById("root"));

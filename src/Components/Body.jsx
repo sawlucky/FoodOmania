@@ -1,158 +1,114 @@
 import React, { useEffect, useState } from "react";
-
 import resList from "../utils/resList";
-
 import Resturant from "./Resturant";
-// import Shimmer from "./Shimmer";
-import Notfound from "./Notfound";
 
 const Body = () => {
   const [list, setList] = useState(resList);
   const [clicked, setClicked] = useState(false);
   const [val, setval] = useState("");
+
   const FilterOut = () => {
-    console.log("fxn invoked");
-    const arr = resList.filter((items) => {
-      return items.rating > 4.5;
-    });
-    clicked ? setList?.(resList) : setList?.(arr);
+    const arr = resList.filter((items) => items.rating > 4.5);
+    clicked ? setList(resList) : setList(arr);
     setClicked(!clicked);
   };
-  const FilterByPrice = () => {
-    console.log("fxn invoked");
-    const price = resList.map((item) => ({ ...item }));
 
+  const FilterByPrice = () => {
+    const price = [...resList];
     const sortedByPriceAsc = price.sort(
       (a, b) =>
         parseFloat(a.price.substring(1)) - parseFloat(b.price.substring(1))
     );
-
-    clicked ? setList?.(resList) : setList?.(sortedByPriceAsc);
+    clicked ? setList(resList) : setList(sortedByPriceAsc);
     setClicked(!clicked);
   };
-
-  useEffect(() => {}, [list]);
 
   const displayAll = () => {
     setList(resList);
   };
-  const printval = (searchval) => {
-    const ans = resList.map((item) => ({ ...item }));
 
-    const arr = ans.filter((item) => {
-      //   if (item.food.toUpperCase() == "Chicken".toUpperCase())
-      //     console.log(item.food, "found and val is", searchval);
-      return item.food.toUpperCase().includes(searchval.toUpperCase());
-      //   return item.food.toUpperCase() === searchval.toUpperCase();
-    });
-    setList(arr);
-    console.log(arr);
+  const printval = (searchval) => {
+    const ans = resList.filter((item) =>
+      item.food.toUpperCase().includes(searchval.toUpperCase())
+    );
+    setList(ans);
   };
 
-  return list.length === 0 ? (
-    <Notfound />
-  ) : (
-    <>
-      <div className="bg-[#1b110ae6] p-4  opacity-95 h-[120vh] font-customFont brightness-60 box-border overflow-auto custom-scrollbar ">
-        <div className="heading-items ml-20 mt-20">
-          <div className="menu-title text-white text-2xl  p-2">Menu</div>
-          <div className="menu-heading text-orange-400   font-serif font-bold  text-4xl">
-            Check Our Tasty Menu
-          </div>
+  useEffect(() => {}, [list, val]);
+
+  return (
+    <div className="bg-[#14100C] p-4 h-full font-customFont opacity-95 box-border overflow-auto custom-scrollbar">
+      <div className="heading-items ml-4 md:ml-20 mt-10 md:mt-20 text-center md:text-left">
+        <div className="menu-title text-white text-lg md:text-2xl p-2">
+          Menu
         </div>
-        <div className="flex justify-center text-center gap-10 font-semibold text-white text-1.5xl mt-5">
-          <div className="items font-serif hover:text-orange-400 ">
-            <button
-              onClick={() => {
-                displayAll();
-              }}
-            >
-              All
-            </button>
-          </div>
-          <div className="items font-serif hover:text-orange-400 ">
-            <button
-              onClick={() => {
-                FilterByPrice();
-              }}
-            >
-              Starters
-            </button>
-          </div>
-          <div className="items font-serif hover:text-orange-400 ">Salads</div>
-          <div className="items font-serif hover:text-orange-400 ">
-            <button
-              onClick={() => {
-                FilterByPrice();
-              }}
-            >
-              Specially
-            </button>
-          </div>
-        </div>
-        <div className="flex items-center m-5 p-4 ">
-          <div>
-            <input
-              className="px-2 py-2 m-3 "
-              type="text"
-              value={val}
-              placeholder="search here.."
-              onChange={(e) => {
-                setval(e.target.value);
-                // printval(e);
-              }}
-            />
-            <button
-              className="px-2 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-200"
-              onClick={(e) => {
-                setval(e.target.value);
-                printval(val);
-              }}
-            >
-              search
-            </button>
-            {/* <p className="h1">{val}</p> */}
-          </div>
-          <button
-            className="m-2 p-2 border bg-white rounded-2xl cursor-pointer hover:bg-[#2f1e12e6]"
-            onClick={() => {
-              FilterOut();
-            }}
-          >
-            Top rated Resturants
-          </button>
-          <button
-            className="m-2 p-2 border bg-white rounded-2xl cursor-pointer hover:bg-[#2f1e12e6]"
-            onClick={() => {
-              FilterByPrice();
-            }}
-          >
-            sort
-          </button>
-          <select
-            name=""
-            id=""
-            onChange={(e) => {
-              if (e.target.value === "4") {
-                FilterOut();
-              }
-              if (e.target.value === "price") {
-                FilterByPrice();
-              }
-            }}
-          >
-            <option value="">--select--</option>
-            <option value="4">above 4.0</option>
-            <option value="price">price</option>
-          </select>
-        </div>
-        <div className="m-2 h-[90%] box-border grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 overflow-hidden scrollbar-hide">
-          {list.map((items) => {
-            return <Resturant datas={items} key={items.id} />;
-          })}
+        <div className="menu-heading text-orange-400 font-serif font-bold text-2xl md:text-4xl">
+          Check Our Tasty Menu
         </div>
       </div>
-    </>
+
+      <div className=" flex flex-wrap justify-center items-center md:justify-center gap-4 font-semibold text-white text-lg mt-5">
+        <button
+          className="items font-serif hover:text-orange-400 px-4 py-2"
+          onClick={displayAll}
+        >
+          All
+        </button>
+        <button
+          className="items font-serif hover:text-orange-400 px-4 py-2"
+          onClick={FilterByPrice}
+        >
+          Starters
+        </button>
+        <button className="items font-serif hover:text-orange-400 px-4 py-2">
+          Salads
+        </button>
+        <button
+          className="items font-serif hover:text-orange-400 px-4 py-2"
+          onClick={FilterByPrice}
+        >
+          Specially
+        </button>
+      </div>
+
+      <div className="flex flex-wrap justify-center md:justify-between items-center m-5 p-4 gap-4">
+        <div className="flex flex-wrap items-center">
+          <input
+            className="px-3 py-2 m-2 rounded border-b-4 border-orange-600"
+            type="text"
+            value={val}
+            placeholder="Search here..."
+            onChange={(e) => setval(e.target.value)}
+          />
+          <button
+            className="px-4 py-2 bg-orange-600 text-white font-semibold shadow-md hover:bg-orange-700 transition duration-200"
+            onClick={() => printval(val)}
+          >
+            Search
+          </button>
+        </div>
+        <div className="flex gap-4">
+          <button
+            className="px-4 py-2 bg-white border rounded-2xl cursor-pointer hover:bg-orange-600 transition duration-200"
+            onClick={FilterOut}
+          >
+            Top Rated Restaurants
+          </button>
+          <button
+            className="px-4 py-2 bg-white border rounded-2xl cursor-pointer hover:bg-orange-600 transition duration-200"
+            onClick={FilterByPrice}
+          >
+            Filter
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-2">
+        {list.map((items) => (
+          <Resturant datas={items} key={items.id} />
+        ))}
+      </div>
+    </div>
   );
 };
 

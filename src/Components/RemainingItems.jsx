@@ -1,39 +1,56 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Outlet } from "react-router-dom";
+import { useParams, Outlet, Link } from "react-router-dom";
 import Header from "./Header";
 import { ResItems_Url } from "../utils/constant";
 import Shimmer from "./Shimmer";
+import ResturantCategories from "./ResturantCategories";
+
 const RemainingItems = () => {
   const { id } = useParams();
+
   const [resItems, setResItems] = useState([]);
   const [remItems, setRemItems] = useState([]);
   const [actualdata, setactualdata] = useState([]);
   const [activeTab, setActiveTab] = useState("Order Online");
+  const [category, setCategory] = useState([]);
 
   useEffect(() => {
+    const fetchItems = async () => {
+      try {
+        const url = ResItems_Url + id;
+        const data = await fetch(url);
+        const json = await data.json();
+        // console.log("here is json data");
+        //   console.log(json?.data?.cards[4]?.groupedCard?.cardGroupMap?.REGULAR);
+        // console.log("this is data here below");
+        const category = json?.data?.cards[4]?.groupedCard?.cardGroupMap?.[
+          "REGULAR"
+        ]?.cards.filter(
+          (c) =>
+            c?.card?.card?.["@type"] ===
+            "type.googleapis.com/swiggy.presentation.food.v2.ItemCategory"
+        );
+        // console.log(category);
+        setCategory(category);
+        // console.log("this is data here below");
+
+        const arr = json?.data?.cards || [];
+        const actualData = arr.filter((item) => item?.card?.card?.info);
+        const rest =
+          json?.data?.cards[4]?.groupedCard?.cardGroupMap?.REGULAR?.cards[2]
+            ?.card?.card?.itemCards;
+        // console.log(actualData);
+        // console.log(rest);
+        setRemItems(rest);
+        setactualdata(rest);
+        setResItems(actualData);
+      } catch (error) {
+        console.error("Error fetching restaurant items:", error);
+      }
+    };
     fetchItems();
-  }, []);
+  }, [id]);
 
-  const fetchItems = async () => {
-    try {
-      const url = ResItems_Url + id;
-      const data = await fetch(url);
-      const json = await data.json();
-
-      const arr = json?.data?.cards || [];
-      const actualData = arr.filter((item) => item?.card?.card?.info);
-      const rest =
-        json?.data?.cards[4]?.groupedCard?.cardGroupMap?.REGULAR?.cards[2]?.card
-          ?.card?.itemCards;
-      console.log(actualData);
-      console.log(rest);
-      setRemItems(rest);
-      setactualdata(rest);
-      setResItems(actualData);
-    } catch (error) {
-      console.error("Error fetching restaurant items:", error);
-    }
-  };
   const filterOutVeg = () => {
     const data = actualdata.map((item) => ({ ...item }));
     const arr = data.filter(
@@ -53,12 +70,11 @@ const RemainingItems = () => {
 
     setRemItems(arr);
   };
-
+  const dummy = "Dumyy Data yess";
   return (
     <div className="min-h-screen mt-[120px] bg-gray-50">
       <Header />
       <div className="max-w-screen-lg mx-auto px-4 py-8">
-        {/* Tabs */}
         <div className="flex border-b border-gray-200 mb-4">
           <button
             className={`text-lg font-semibold px-4 py-2 border-b-2 transition-all ${
@@ -206,9 +222,11 @@ const RemainingItems = () => {
                     </div>
 
                     <div className="mt-4 flex items-center justify-between">
-                      <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        Add
-                      </button>
+                      <Link to="/menu/orders">
+                        <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                          Add
+                        </button>
+                      </Link>
                       <span className="text-sm text-gray-600">
                         Customizable
                       </span>
@@ -216,6 +234,17 @@ const RemainingItems = () => {
                   </div>
                 );
               })}
+        </div>
+        <div>
+          {category.map((items) => {
+            return (
+              <ResturantCategories
+                key={items?.card?.card.title}
+                data={items?.card?.card}
+                dummy={dummy}
+              />
+            );
+          })}
         </div>
         <Outlet />
       </div>
